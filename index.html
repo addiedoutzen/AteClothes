@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Outfit Picker</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #eaeaea;
+        display: flex;
+        justify-content: center;
+      }
+
+      .app {
+        width: 420px;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 15px;
+      }
+
+      /* PREVIEW AREA */
+      .preview-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+      }
+
+      .side-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .side-controls button {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: #333;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .side-controls button:hover {
+        background: #555;
+      }
+
+      .preview {
+        position: relative;
+        width: 300px;
+        height: 500px;
+        margin: 0 15px;
+
+        /* PERSON AS BACKGROUND */
+        background-image: url('ate.jpg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      /* CLOTHING LAYERS */
+      .preview img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+      }
+
+      .inner {
+        z-index: 1;
+      }
+      .outer {
+        z-index: 2;
+      }
+      .bottoms {
+        z-index: 3;
+      }
+      .shoes {
+        z-index: 4;
+      }
+
+      /* LABELS */
+      .labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-top: 5px;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <h1>👗 Outfit Picker</h1>
+
+      <div class="preview-wrapper">
+        <!-- LEFT ARROWS -->
+        <div class="side-controls">
+          <button onclick="prev('inner')">◀</button>
+          <button onclick="prev('outer')">◀</button>
+          <button onclick="prev('bottoms')">◀</button>
+          <button onclick="prev('shoes')">◀</button>
+        </div>
+
+        <!-- PERSON + CLOTHES -->
+        <div class="preview">
+          <img class="inner" id="innerWear" />
+          <img class="outer" id="outerWear" />
+          <img class="bottoms" id="bottomsWear" />
+          <img class="shoes" id="shoesWear" />
+        </div>
+
+        <!-- RIGHT ARROWS -->
+        <div class="side-controls">
+          <button onclick="next('inner')">▶</button>
+          <button onclick="next('outer')">▶</button>
+          <button onclick="next('bottoms')">▶</button>
+          <button onclick="next('shoes')">▶</button>
+        </div>
+      </div>
+
+      <div class="labels">
+        <span>Inner</span>
+        <span>Outer</span>
+        <span>Bottoms</span>
+        <span>Shoes</span>
+      </div>
+    </div>
+
+    <script>
+      const outfits = {
+        inner: [
+          'https://via.placeholder.com/300x500/ffcccc/000000?text=Shirt+(PNG)',
+          'https://via.placeholder.com/300x500/ccffcc/000000?text=Tank',
+        ],
+        outer: [
+          'https://via.placeholder.com/300x500/ccccff/000000?text=Jacket',
+          'https://via.placeholder.com/300x500/eeeeee/000000?text=Hoodie',
+        ],
+        bottoms: [
+          'https://via.placeholder.com/300x500/999999/000000?text=Jeans',
+          'https://via.placeholder.com/300x500/666666/000000?text=Shorts',
+        ],
+        shoes: [
+          'https://via.placeholder.com/300x500/000000/ffffff?text=Sneakers',
+          'https://via.placeholder.com/300x500/333333/ffffff?text=Boots',
+        ],
+      };
+
+      const indices = {
+        inner: 0,
+        outer: 0,
+        bottoms: 0,
+        shoes: 0,
+      };
+
+      const idMap = {
+        inner: 'innerWear',
+        outer: 'outerWear',
+        bottoms: 'bottomsWear',
+        shoes: 'shoesWear',
+      };
+
+      function update(type) {
+        document.getElementById(idMap[type]).src = outfits[type][indices[type]];
+      }
+
+      function next(type) {
+        indices[type] = (indices[type] + 1) % outfits[type].length;
+        update(type);
+      }
+
+      function prev(type) {
+        indices[type] =
+          (indices[type] - 1 + outfits[type].length) % outfits[type].length;
+        update(type);
+      }
+
+      // Initialize
+      Object.keys(outfits).forEach(update);
+    </script>
+  </body>
+</html>
