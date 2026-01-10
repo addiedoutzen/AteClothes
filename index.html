@@ -7,7 +7,7 @@
     <style>
       @font-face {
         font-family: 'Lavishly';
-        src: url('Niconne-Regular.ttf') format('truetype');
+        src: url('Assets/Niconne-Regular.ttf') format('truetype');
       }
 
       :root {
@@ -209,16 +209,16 @@
       }
 
       .inner {
-        z-index: 2;
+        z-index: 1;
       }
       .outer {
-        z-index: 4;
+        z-index: 2;
       }
       .bottoms {
         z-index: 3;
       }
       .shoes {
-        z-index: 1;
+        z-index: 4;
       }
 
       /* LABELS */
@@ -228,6 +228,78 @@
         font-size: 14px;
         margin-top: 5px;
         color: var(--text-color);
+      }
+
+      /* OUTFIT SLOTS */
+      .outfit-slots {
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid var(--text-color);
+      }
+
+      .outfit-slots h2 {
+        font-size: 28px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: var(--text-color);
+      }
+
+      .slots-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .day-slot {
+        padding: 15px;
+        border: 2px solid var(--button-bg);
+        border-radius: 12px;
+        background: var(--button-text);
+        transition: all 0.2s ease;
+      }
+
+      .day-slot:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .day-slot h3 {
+        margin: 0 0 12px 0;
+        font-size: 20px;
+        color: var(--button-bg);
+      }
+
+      .day-slot-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .day-slot-buttons button {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid var(--button-bg);
+        border-radius: 6px;
+        background: var(--button-text);
+        color: var(--button-bg);
+        font-family: 'Lavishly', Georgia, serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .day-slot-buttons button:hover {
+        background: var(--button-bg);
+        color: var(--button-text);
+      }
+
+      .slot-status {
+        font-size: 13px;
+        color: var(--button-bg);
+        margin-top: 8px;
+        min-height: 16px;
+      }
+
+      .slot-status.saved {
+        font-weight: bold;
       }
     </style>
   </head>
@@ -332,6 +404,47 @@
         <span>Outer</span>
         <span>Bottoms</span>
         <span>Shoes</span>
+      </div>
+
+      <div class="outfit-slots">
+        <h2>Weekly Outfits</h2>
+        <div class="slots-grid">
+          <div class="day-slot">
+            <h3>Monday</h3>
+            <div class="day-slot-buttons">
+              <button onclick="saveOutfit('Monday')">Save</button>
+              <button onclick="loadOutfit('Monday')">Load</button>
+            </div>
+            <div class="slot-status" id="status-Monday"></div>
+          </div>
+
+          <div class="day-slot">
+            <h3>Tuesday</h3>
+            <div class="day-slot-buttons">
+              <button onclick="saveOutfit('Tuesday')">Save</button>
+              <button onclick="loadOutfit('Tuesday')">Load</button>
+            </div>
+            <div class="slot-status" id="status-Tuesday"></div>
+          </div>
+
+          <div class="day-slot">
+            <h3>Wednesday</h3>
+            <div class="day-slot-buttons">
+              <button onclick="saveOutfit('Wednesday')">Save</button>
+              <button onclick="loadOutfit('Wednesday')">Load</button>
+            </div>
+            <div class="slot-status" id="status-Wednesday"></div>
+          </div>
+
+          <div class="day-slot">
+            <h3>Thursday</h3>
+            <div class="day-slot-buttons">
+              <button onclick="saveOutfit('Thursday')">Save</button>
+              <button onclick="loadOutfit('Thursday')">Load</button>
+            </div>
+            <div class="slot-status" id="status-Thursday"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -479,9 +592,53 @@
         }
       }
 
+      function saveOutfit(day) {
+        const outfitData = {
+          inner: indices.inner,
+          outer: indices.outer,
+          bottoms: indices.bottoms,
+          shoes: indices.shoes,
+          savedAt: new Date().toLocaleString(),
+        };
+        localStorage.setItem(`outfit_${day}`, JSON.stringify(outfitData));
+        updateSlotStatus(day);
+      }
+
+      function loadOutfit(day) {
+        const saved = localStorage.getItem(`outfit_${day}`);
+        if (saved) {
+          const outfitData = JSON.parse(saved);
+          indices.inner = outfitData.inner;
+          indices.outer = outfitData.outer;
+          indices.bottoms = outfitData.bottoms;
+          indices.shoes = outfitData.shoes;
+
+          Object.keys(outfits).forEach(update);
+        }
+      }
+
+      function updateSlotStatus(day) {
+        const saved = localStorage.getItem(`outfit_${day}`);
+        const statusEl = document.getElementById(`status-${day}`);
+
+        if (saved) {
+          const outfitData = JSON.parse(saved);
+          statusEl.textContent = `Saved ${outfitData.savedAt}`;
+          statusEl.classList.add('saved');
+        } else {
+          statusEl.textContent = '';
+          statusEl.classList.remove('saved');
+        }
+      }
+
+      function updateAllSlotStatuses() {
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday'].forEach(updateSlotStatus);
+      }
+
       // Initialize
       Object.keys(outfits).forEach(update);
       loadColors();
+      updateAllSlotStatuses();
     </script>
   </body>
 </html>
