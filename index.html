@@ -7,7 +7,7 @@
     <style>
       @font-face {
         font-family: 'Lavishly';
-        src: url('Niconne-Regular.ttf') format('truetype');
+        src: url('Assets/Niconne-Regular.ttf') format('truetype');
       }
 
       :root {
@@ -291,6 +291,38 @@
         color: var(--button-text);
       }
 
+      .slot-preview {
+        width: 100%;
+        height: 140px;
+        background-image: url('ate.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slot-preview img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: auto;
+        height: 100%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .slot-preview.empty {
+        border: 2px dashed var(--button-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--button-bg);
+        font-size: 12px;
+      }
+
       .slot-status {
         font-size: 13px;
         color: var(--button-bg);
@@ -411,6 +443,7 @@
         <div class="slots-grid">
           <div class="day-slot">
             <h3>Monday</h3>
+            <div class="slot-preview empty" id="preview-Monday">No outfit saved</div>
             <div class="day-slot-buttons">
               <button onclick="saveOutfit('Monday')">Save</button>
               <button onclick="loadOutfit('Monday')">Load</button>
@@ -420,6 +453,7 @@
 
           <div class="day-slot">
             <h3>Tuesday</h3>
+            <div class="slot-preview empty" id="preview-Tuesday">No outfit saved</div>
             <div class="day-slot-buttons">
               <button onclick="saveOutfit('Tuesday')">Save</button>
               <button onclick="loadOutfit('Tuesday')">Load</button>
@@ -429,6 +463,7 @@
 
           <div class="day-slot">
             <h3>Wednesday</h3>
+            <div class="slot-preview empty" id="preview-Wednesday">No outfit saved</div>
             <div class="day-slot-buttons">
               <button onclick="saveOutfit('Wednesday')">Save</button>
               <button onclick="loadOutfit('Wednesday')">Load</button>
@@ -438,6 +473,7 @@
 
           <div class="day-slot">
             <h3>Thursday</h3>
+            <div class="slot-preview empty" id="preview-Thursday">No outfit saved</div>
             <div class="day-slot-buttons">
               <button onclick="saveOutfit('Thursday')">Save</button>
               <button onclick="loadOutfit('Thursday')">Load</button>
@@ -449,31 +485,7 @@
     </div>
 
     <script>
-      const outfits = {
-        inner: [
-          'ate inner/1.png', 'ate inner/2.png', 'ate inner/3.png', 'ate inner/4.png',
-          'ate inner/5.png', 'ate inner/6.png', 'ate inner/7.png', 'ate inner/8.png',
-          'ate inner/9.png', 'ate inner/10.png', 'ate inner/11.png', 'ate inner/12.png',
-          'ate inner/13.png', 'ate inner/14.png', 'ate inner/15.png', 'ate inner/16.png',
-          'ate inner/17.png', 'ate inner/18.png', 'ate inner/19.png',
-        ],
-        outer: [
-          'ate outer/1.png', 'ate outer/2.png', 'ate outer/3.png',
-          'ate outer/4.png', 'ate outer/5.png', 'ate outer/6.png', 'ate outer/7.png',
-          'ate outer/8.png', 'ate outer/9.png',
-        ],
-        bottoms: [
-          'ate bottoms/bottom1.png', 'ate bottoms/bottom2.png', 'ate bottoms/bottom3.png',
-          'ate bottoms/bottom4.png', 'ate bottoms/bottom5.png', 'ate bottoms/bottom6.png',
-          'ate bottoms/bottom7.png', 'ate bottoms/bottom8.png', 'ate bottoms/bottom9.png',
-          'ate bottoms/bottom10.png', 'ate bottoms/bottom11.png', 'ate bottoms/bottom12.png',
-          'ate bottoms/bottom13.png',
-        ],
-        shoes: [
-          'ate shoes/1.png', 'ate shoes/2.png', 'ate shoes/3.png',
-        ],
-      };
-
+      const outfits = { inner: [ 'ate inner/1.png', 'ate inner/2.png', 'ate inner/3.png', 'ate inner/4.png', 'ate inner/5.png', 'ate inner/6.png', 'ate inner/7.png', 'ate inner/8.png', 'ate inner/9.png', 'ate inner/10.png', 'ate inner/11.png', 'ate inner/12.png', 'ate inner/13.png', 'ate inner/14.png', 'ate inner/15.png', 'ate inner/16.png', 'ate inner/17.png', 'ate inner/18.png', 'ate inner/19.png', ], outer: [ 'ate outer/1.png', 'ate outer/2.png', 'ate outer/3.png', 'ate outer/4.png', 'ate outer/5.png', 'ate outer/6.png', 'ate outer/7.png', 'ate outer/8.png', 'ate outer/9.png', ], bottoms: [ 'ate bottoms/bottom1.png', 'ate bottoms/bottom2.png', 'ate bottoms/bottom3.png', 'ate bottoms/bottom4.png', 'ate bottoms/bottom5.png', 'ate bottoms/bottom6.png', 'ate bottoms/bottom7.png', 'ate bottoms/bottom8.png', 'ate bottoms/bottom9.png', 'ate bottoms/bottom10.png', 'ate bottoms/bottom11.png', 'ate bottoms/bottom12.png', 'ate bottoms/bottom13.png', ], shoes: [ 'ate shoes/1.png', 'ate shoes/2.png', 'ate shoes/3.png', ], };
       const indices = {
         inner: 0,
         outer: 0,
@@ -592,6 +604,41 @@
         }
       }
 
+      function renderOutfitPreview(day) {
+        const saved = localStorage.getItem(`outfit_${day}`);
+        const previewEl = document.getElementById(`preview-${day}`);
+
+        if (saved) {
+          const outfitData = JSON.parse(saved);
+          previewEl.innerHTML = '';
+          previewEl.classList.remove('empty');
+
+          const innerImg = document.createElement('img');
+          innerImg.src = outfits.inner[outfitData.inner];
+          innerImg.style.zIndex = '2';
+
+          const outerImg = document.createElement('img');
+          outerImg.src = outfits.outer[outfitData.outer];
+          outerImg.style.zIndex = '4';
+
+          const bottomsImg = document.createElement('img');
+          bottomsImg.src = outfits.bottoms[outfitData.bottoms];
+          bottomsImg.style.zIndex = '3';
+
+          const shoesImg = document.createElement('img');
+          shoesImg.src = outfits.shoes[outfitData.shoes];
+          shoesImg.style.zIndex = '1';
+
+          previewEl.appendChild(innerImg);
+          previewEl.appendChild(outerImg);
+          previewEl.appendChild(bottomsImg);
+          previewEl.appendChild(shoesImg);
+        } else {
+          previewEl.innerHTML = 'No outfit saved';
+          previewEl.classList.add('empty');
+        }
+      }
+
       function saveOutfit(day) {
         const outfitData = {
           inner: indices.inner,
@@ -602,6 +649,7 @@
         };
         localStorage.setItem(`outfit_${day}`, JSON.stringify(outfitData));
         updateSlotStatus(day);
+        renderOutfitPreview(day);
       }
 
       function loadOutfit(day) {
@@ -632,7 +680,10 @@
       }
 
       function updateAllSlotStatuses() {
-        ['Monday', 'Tuesday', 'Wednesday', 'Thursday'].forEach(updateSlotStatus);
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday'].forEach((day) => {
+          updateSlotStatus(day);
+          renderOutfitPreview(day);
+        });
       }
 
       // Initialize
